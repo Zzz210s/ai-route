@@ -1,5 +1,7 @@
 # ai-route
 
+**English | [简体中文](./README.zh-CN.md)**
+
 Local AI API central router: every CLI tool on your machine shares one live endpoint - the one your most recently used AI CLI session is already on - with zero hardcoded keys and an optional OpenAI/Anthropic protocol-conversion proxy.
 
 ## Background
