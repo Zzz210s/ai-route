@@ -1,0 +1,67 @@
+#!/usr/bin/env node
+/**
+ * ai-route - 本地 AI API 中央路由入口
+ *
+ *   ai-route status                        人读摘要
+ *   ai-route json                          端点 JSON(含 key,勿外传)
+ *   ai-route env [--openai|--anthropic]    shell eval 环境变量
+ *   ai-route proxy [--port=8787]           启动本地代理
+ */
+'use strict';
+
+const { route } = require('./lib/detect');
+const { startProxy } = require('./lib/proxy');
+
+function cmdJson() {
+  const { active, eps } = route();
+  process.stdout.write(JSON.stringify({ active, endpoints: eps || [] }, null, 2) + '\n');
+}
+
+function cmdEnv(kind) {
+  const { eps } = route();
+  const ep = eps && eps[0];
+  if (!ep) { process.stderr.write('ai-route: no usable endpoint\n'); process.exit(1); }
+  const proxy = process.env.AI_ROUTE_PROXY || '';
+  if (kind === 'openai' || (!kind && ep.api === 'openai-completions')) {
+    if (proxy) {
+      process.stdout.write('export OPENAI_BASE_URL=' + proxy + '/v1\nexport OPENAI_API_KEY=route\n');
+    } else {
+      process.stdout.write('export OPENAI_BASE_URL=' + ep.baseUrl +
+        '\nexport OPENAI_API_KEY=' + ep.key + '\nexport OPENAI_MODEL=' + ep.model + '\n');
+    }
+  } else {
+    if (proxy) {
+      process.stdout.write('export ANTHROPIC_BASE_URL=' + proxy + '\nexport ANTHROPIC_API_KEY=route\n');
+    } else {
+      process.stdout.write('export ANTHROPIC_BASE_URL=' + ep.baseUrl +
+        '\nexport ANTHROPIC_API_KEY=' + ep.key + '\nexport ANTHROPIC_MODEL=' + ep.model + '\n');
+    }
+  }
+}
+
+function cmdStatus() {
+  const { active, eps } = route();
+  if (active) {
+    process.stdout.write('active AI : ' + active.name + ' (' + active.model +
+      (active.provider ? ' via ' + active.provider : '') + ')\n');
+  } else {
+    process.stdout.write('active AI : none\n');
+  }
+  (eps || []).forEach((e, i) =>
+    process.stdout.write('endpoint[' + i + '] : ' + e.api + ' ' + e.model + ' @ ' + e.baseUrl + '\n'));
+}
+
+const [cmd, ...rest] = process.argv.slice(2);
+switch (cmd) {
+  case 'json': cmdJson(); break;
+  case 'env': cmdEnv(rest.find(a => !a.startsWith('--'))); break;
+  case 'status': case undefined: case '': cmdStatus(); break;
+  case 'proxy': {
+    const p = rest.find(a => a.startsWith('--port'));
+    startProxy(p ? parseInt(p.split('=')[1], 10) || 8787 : 8787);
+    break;
+  }
+  default:
+    process.stderr.write('usage: ai-route [status|json|env [--openai|--anthropic]|proxy [--port=8787]]\n');
+    process.exit(1);
+}
