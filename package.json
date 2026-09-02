@@ -1,0 +1,27 @@
+{
+  "name": "ai-route",
+  "version": "0.1.0",
+  "description": "Local AI API central router: shares one live endpoint (detected from your most recent AI CLI session) across all your CLI tools, with OpenAI/Anthropic protocol conversion proxy.",
+  "license": "MIT",
+  "private": false,
+  "type": "commonjs",
+  "bin": {
+    "ai-route": "./ai-route"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zzz210s/ai-route.git"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "router",
+    "proxy",
+    "openai",
+    "anthropic",
+    "api-gateway"
+  ]
+}

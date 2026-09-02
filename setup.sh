@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ai-route 一键部署:注册 ~/bin/ai-route 命令(包装本仓库入口)。
-# 幂等;由 config-cli/setup.sh 链式调用,也可独立运行。
+# 幂等;可独立运行,也可被你的 dotfiles/bootstrap 脚本链式调用。
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
